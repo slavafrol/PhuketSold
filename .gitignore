@@ -1,15 +1,35 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# Generated frontend files
+**/node_modules/
+**/dist/
+**/.angular/cache/
+**/coverage/
+**/tmp/
+**/out-tsc/
+**/bazel-out/
+.sass-cache/
+npm-debug.log*
+yarn-error.log*
+testem.log
+__screenshots__/
 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+# Generated .NET files
+**/bin/
+**/obj/
+*.user
+*.suo
 
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
+# Local Supabase state
+supabase/.branches/
+supabase/.temp/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+**/appsettings.Local.json
+**/appsettings.*.local.json
+**/secrets.json
+.vscode/mcp.json
 
 # IDEs and editors
 .idea/
@@ -19,26 +39,16 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
-
-# Visual Studio Code
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-!.vscode/mcp.json
-.history/*
+.history/
 
 # Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
-
-# System files
+connect.lock
+libpeerconnection.log
+typings/
 .DS_Store
 Thumbs.db
