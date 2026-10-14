@@ -24,7 +24,7 @@ PhuketSold addresses Facebook Marketplace-style friction: sellers cannot easily 
 - Fields: seller, type, title, description, category, price in THB, optional condition, predefined area, optional predefined building/village/development, timestamps, expiry, status; support metadata required for localization/search.
 - Maximum **12 images**, with cover selection and reordering. Mobile upload/reorder needs accessible tap controls, not drag-only. Public listing media can be read through CDN, but upload/delete must remain authorized.
 - Statuses: `Draft`, `Active`, `Reserved`, `Sold`, `Expired`, `Archived`.
-- Default suggested expiry **30 days**. Prompt for renewal before expiry; departure date, if provided, may set an earlier expiry. State transitions are authorized and recorded.
+- Default expiry **30 days**. Prompt for renewal before expiry; departure date, if provided, may set an earlier expiry. State transitions are authorized and recorded.
 - Only active, eligible listings appear in default results. Expired/sold remain accessible by direct link with obvious state labels and through a seller's **history/archive** view. Do not claim a listing is sold just because an offer was made.
 - Stable, SEO/social-friendly listing URL; correct canonical/OpenGraph metadata and no dead links when a listing changes state.
 

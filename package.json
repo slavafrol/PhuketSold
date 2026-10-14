@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "db:check": "node supabase/scripts/check-database.mjs"
+  },
+  "devDependencies": {
+    "supabase": "^2.120.0"
+  }
+}
