@@ -36,3 +36,5 @@ Inherits root `AGENTS.md` and documents in `docs/`.
 ## Operational checks
 
 For schema changes provide a concise migration note, any necessary backfill/rollout, rollback considerations, and verification SQL. Test on local/dev data, check RLS policies for both anonymous and authenticated roles, and consider query plans/affected row counts before production rollout.
+
+Follow the root verification-scope rules. Verification SQL may be a one-off local smoke query; a new migration does not require a permanent script. Extend existing checks for meaningful behavior/integrity changes, and keep rollback-only synthetic fixtures. `npm run db:check` covers migration/lint/integrity/RLS checks; `npm run db:check:plans` additionally runs the synthetic query plans when query/index/performance changes justify them.

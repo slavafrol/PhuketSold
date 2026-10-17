@@ -46,6 +46,17 @@ Read targeted sections rather than repeatedly dumping entire files into context.
 - Never fabricate an integration working: LINE Login, SMS provider, Supabase configuration and notifications require real credentials/provider setup and validation.
 - Never paste or commit secret values, access tokens, OTPs, private message bodies, or personal phone numbers. Keep configuration in environment/secret storage; provide `.env.example` with placeholders only when creating config.
 
+## Verification scope
+
+- Before adding a permanent check, identify the concrete failure it should catch and whether an existing test already covers it. Match coverage to the risk of the behavior, not the number of files or migration files changed.
+- Prioritize authorization/RLS, private-data exposure, transaction/concurrency/idempotency, lifecycle/expiry, pagination, and real integration boundaries. A one-line change in these areas can require a regression test.
+- For reversible, low-impact changes such as reference-data defaults, labels, or formatting, prefer a focused local smoke check and relevant existing checks. Do not add a dedicated test file/script or assertions that merely repeat a configured constant unless there is a meaningful uncovered failure.
+- Assert observable outcomes using independent expectations. Do not reproduce the implementation's query/algorithm to compute the expected result, or treat configuration-flag assertions as proof that runtime behavior works.
+- Extend the narrowest relevant existing suite first. Add a separate verification file for a coherent feature or boundary, not for every migration. Cover multiple layers only when each catches a distinct failure (for example, RLS policies and the actual provisioned login).
+- Run relevant checks after the final meaningful change; do not rerun passed suites after documentation/formatting-only edits without a specific concern. Use broader regression checks before merging substantial changes or changing shared security/transaction/schema behavior.
+- Keep synthetic query-plan/load checks explicit. Run `npm run db:check:plans` when queries, filters, indexes, data volume, or a measured performance concern justify it; ordinary `npm run db:check` does not need those fixtures.
+- Report what ran and any one-off smoke-check results. A passing build alone does not prove database behavior or authorization; do not claim a skipped check passed.
+
 ## Permission boundary
 
 Allowed without asking: inspect source, create/change feature code and docs, run formatting/build/lint/tests, run read-only commands, make safe local development changes.

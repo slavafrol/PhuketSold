@@ -2,20 +2,11 @@ import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
+import { redactSecrets } from '../../scripts/redact-secrets.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const cli = resolve(root, 'node_modules/supabase/dist/supabase.js');
 const expectedVersion = '17.11';
-
-function redact(text) {
-  return text
-    .replace(/postgres(?:ql)?:\/\/[^\s'"<>]+/gi, '[database URL redacted]')
-    .replace(/\beyJ[\w-]+\.[\w-]+\.[\w-]+\b/g, '[token redacted]')
-    .replace(/\bsb_(?:secret|publishable)_[\w-]+\b/g, '[key redacted]')
-    .split('\n')
-    .filter(line => !/password|api.?key|access.?token|service.?role.?key|secret.?key/i.test(line))
-    .join('\n');
-}
 
 function run(command, args, input) {
   return new Promise((accept, reject) => {
@@ -28,7 +19,7 @@ function run(command, args, input) {
     child.stdin.on('error', error => { if (error.code !== 'EPIPE') reject(error); });
     child.once('close', code => {
       if (code === 0) accept(stdout);
-      else reject(new Error(`${command} ${args.join(' ')} failed (${code}).\n${redact(stderr).slice(-6000)}`));
+      else reject(new Error(`${command} ${args.join(' ')} failed (${code}).\n${redactSecrets(stderr).slice(-6000)}`));
     });
     child.stdin.end(input);
   });
@@ -40,7 +31,11 @@ async function supabase(args) {
 }
 
 async function main() {
-  if (process.argv.length > 2) throw new Error('db:check accepts no target or connection arguments; it only tests the local project.');
+  const args = process.argv.slice(2);
+  if (args.length > 1 || (args.length === 1 && args[0] !== '--plans')) {
+    throw new Error('db:check accepts only the optional --plans flag; target/connection arguments are refused.');
+  }
+  const includePlans = args[0] === '--plans';
   const config = await readFile(resolve(root, 'supabase/config.toml'), 'utf8');
   const project = config.match(/^project_id\s*=\s*"([a-zA-Z0-9_-]+)"/m)?.[1];
   if (!project) throw new Error('Expected a simple project_id in supabase/config.toml.');
@@ -72,19 +67,21 @@ async function main() {
   await supabase(['db', 'lint', '--local', '--schema', 'marketplace', '--fail-on', 'error']);
   console.log('PASS: marketplace SQL lint');
 
-  for (const [file, label] of [
+  const checks = [
     ['supabase/seed.sql', 'local demo catalog'],
     ['supabase/verification/initial_inventory.sql', 'constraints, RLS, concurrency and lifecycle history'],
-    ['supabase/verification/inventory_query_plans.sql', '10,000-listing query plans and multilingual search'],
-  ]) {
+    ['supabase/verification/catalog_reader.sql', 'read-only catalog permissions, visibility and empty state'],
+  ];
+  if (includePlans) checks.push(['supabase/verification/inventory_query_plans.sql', '10,000-listing query plans and multilingual search']);
+  for (const [file, label] of checks) {
     const output = await run('docker', psqlArgs, await readFile(resolve(root, file), 'utf8'));
-    if (file.includes('query_plans')) console.log(output.trim());
+    if (file.includes('query_plans')) console.log(redactSecrets(output).trim());
     console.log(`PASS: ${label}`);
   }
   console.log('Database checks passed. Local services remain running for development.');
 }
 
 main().catch(error => {
-  console.error(redact(error.message));
+  console.error(redactSecrets(error.message));
   process.exitCode = 1;
 });

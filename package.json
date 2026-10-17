@@ -1,7 +1,11 @@
 {
   "private": true,
   "scripts": {
-    "db:check": "node supabase/scripts/check-database.mjs"
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "db:check": "node supabase/scripts/check-database.mjs",
+    "db:check:plans": "node supabase/scripts/check-database.mjs --plans",
+    "api:db:setup": "node backend/scripts/setup-local-database.mjs",
+    "api:check": "node backend/scripts/check-api.mjs"
   },
   "devDependencies": {
     "supabase": "^2.120.0"
